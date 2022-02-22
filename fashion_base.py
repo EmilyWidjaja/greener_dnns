@@ -110,7 +110,7 @@ class FashionVal(object):
                 print('Folder does not exist {}. Making folder...'.format(tested))
                 os.system('mkdir {}'.format(tested))
         
-        print('{} exists: {}'.format(path, os.path.exists(path)))
+        # print('{} exists: {}'.format(path, os.path.exists(path)))
         if os.path.exists(path) == False:
             self.paths_set = False
         return 
