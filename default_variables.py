@@ -27,5 +27,10 @@ for l in layers:
 
 #Test variables
 times = 50
+trials = 5
 warm_up_times = 10
 sampling_period = 15
+"""list of possible attributes in order (must be ordered for automatic processing)
+
+
+"""

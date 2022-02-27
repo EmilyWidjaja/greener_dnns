@@ -11,3 +11,5 @@ for m, n in mn:
 
 os.system('tput bel')
 print('Complete')
+
+#'/home/emily/GreenerDNNs/denseNets/results/dense/model1x1.pth'

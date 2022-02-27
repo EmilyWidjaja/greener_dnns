@@ -39,7 +39,7 @@ class Net(nn.Module):
         return F.log_softmax(x)
 
 class FashionVal(object):
-    def __init__(self, lr, momentum, device_number, experiment_name, path='/home/emily/fashion/fashion_module/'):
+    def __init__(self, lr, momentum, device_number, experiment_name, path):
         #Initialize device
         torch.cuda.set_device(device_number)
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -229,6 +229,9 @@ class FashionVal(object):
         
         print("Start training: ")
         best_acc, best_test_loss = self.test(test_loader)
+        torch.save(self.network.state_dict(), os.path.join(self.paths_dict['results'], 'model{}.pth'.format(self.fileformat)))
+        torch.save(self.optimizer.state_dict(), os.path.join(self.paths_dict['results'], 'optimizer{}.pth'.format(self.fileformat)))
+                
         for epoch in range(epochs):
             self.train(train_loader, epoch)
             accuracy, test_loss = self.test(test_loader)

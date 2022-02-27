@@ -12,7 +12,7 @@ Methods to be overwritten:
 - main (since it calls load_model)"""
 
 #Check GPU exists
-class measure_energy():
+class measure_energy(object):
     def __init__(self, device_number, times, trials, path, sampling_period, momentum, lr, exp, debug, attributes=''):
         self.device_number = device_number
         self.times = times
@@ -26,7 +26,8 @@ class measure_energy():
 
         if attributes=='':
             self.attributes = 'timestamp,power.draw,clocks.current.sm,clocks.current.memory,utilization.gpu,utilization.memory,temperature.gpu,memory.used,pstate'
-
+        else:
+            self.attributes = attributes
         #Additional variables that should be overwritten
         return
 
@@ -45,8 +46,8 @@ class measure_energy():
             self.default_net = net_obj
         return net_obj
 
-    def load_infer_data(self):
-        train_loader, test_loader = self.default_net.load_data()
+    def load_infer_data(self, train_path, test_path):
+        train_loader, test_loader = self.default_net.load_data(train_path, test_path)
         train_data, _ = next(iter(train_loader))
         test_data, _ = next(iter(test_loader))
         train_data.to(self.device)
@@ -84,19 +85,22 @@ class measure_energy():
             proc.terminate()    #Stop nvidia-smi
         return
     
-    def define_command(self, trial):
+    def define_command(self, trial, net_obj):
         if self.debug == True:
             command_str = ["nvidia-smi", "--query-gpu={}".format(self.attributes), "--format=csv,nounits,noheader", "-i", \
                 str(self.device_number), "-f", "{}/energy/test.txt".format(self.path), "-lms", str(self.period)]
         else:
             command_str = ["nvidia-smi", "--query-gpu={}".format(self.attributes), "--format=csv,nounits,noheader", "-i", \
-                str(self.device_number), "-f", "{}/energy/{}/{}_{}.txt".format(self.path, self.exp, self.default_net.fileformat, trial), "-lms", str(self.period)]
+                str(self.device_number), "-f", "{}/energy/{}/{}_{}.txt".format(self.path, self.exp, net_obj.fileformat, trial), "-lms", str(self.period)]
+            print(command_str)
         return command_str
 
-    def main(self, MN, warm_up_times=0):
+    def main(self, MN, train_path, test_path, warm_up_times=0):
         #Warm-up
+        self.set_device()
         net_obj = self.load_model(106, 106, default=True)
         self.instantiate_model(net_obj)
+        self.load_infer_data(train_path, test_path)
         self.warm_up(net_obj, warm_up_times)
 
         #Take readings
