@@ -9,7 +9,7 @@ class measure_chan_energy(measure_energy):
         return
 
     def load_model(self, ker, out_channels1, default=False):
-        net_obj = FashionConv(ker, out_channels1, self.lr, self.momentum, self.device_number, experiment_name=self.exp, path=self.path, fileformat=self.exp)
+        net_obj = FashionConv(ker, out_channels1, self.lr, self.momentum, self.device_number, experiment_name=self.exp, path=self.path, fileformat=self.exp+str(out_channels1))
         if default:
             self.default_net = net_obj
         return net_obj
@@ -24,7 +24,7 @@ class measure_chan_energy(measure_energy):
 
         #Take readings
         if self.debug and len(out_channels1) >= 4:
-            out_channels1 = out_channels1[0:2] + out_channels1[-2::]
+            out_channels1 = out_channels1[0:2]# + out_channels1[-2::]
         for chan in tqdm(out_channels1):
             for trial in range(0, self.trials):
                 net_obj = self.load_model(kers, chan)

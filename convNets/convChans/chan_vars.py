@@ -2,7 +2,7 @@
 #Housekeeping
 import sys
 parentdir = '/home/emily/GreenerDNNs'
-print("Importing kernel variables...")
+print("Importing channel variables...")
 sys.path.append(parentdir) 
 
 train_path = '/home/emily/GreenerDNNs/convNets/convKernels/train_loader.py'
