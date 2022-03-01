@@ -89,7 +89,7 @@ class FashionConv(FashionVal):
         else:
             self.pad = (pad1, pad1, pad1, pad1)
 
-        self.fileformat = fileformat + '{}'.format(kernel_size)
+        self.fileformat = fileformat
         print(self.fileformat)
         return
 

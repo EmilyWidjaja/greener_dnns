@@ -8,7 +8,7 @@ train_more = False
 
 for chan in tqdm(chans):
     #Check it can access the right models (being convKernels)
-    net = models.FashionConv(ker, chan, lr, momentum, device_number, path=path, experiment_name=experiment_name, fileformat=experiment_name)
+    net = models.FashionConv(ker, chan, lr, momentum, device_number, path=path, experiment_name=experiment_name, fileformat=experiment_name+str(chan))
     net.main(epochs, train_path, test_path, train_more)
 
 os.system('tput bel')
