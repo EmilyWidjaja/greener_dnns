@@ -26,7 +26,7 @@ kers = range(1, 15, 2)
 
 
 #Test variables
-times = 1
+times = 7
 trials = 5
 warm_up_times = 10
 sampling_period = 20

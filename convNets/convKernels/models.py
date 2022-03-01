@@ -119,7 +119,7 @@ class measure_kernel_energy(measure_energy):
 
         #Take readings
         if self.debug and len(kers) >= 4:
-            kers = kers[0:2] + kers[-2::]
+            kers = kers[-2::]# + kers[-2::]
         for ker in tqdm(kers):
             for trial in range(0, self.trials):
                 net_obj = self.load_model(ker, out_channels1)
