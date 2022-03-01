@@ -87,8 +87,9 @@ class measure_energy(object):
     
     def define_command(self, trial, net_obj):
         if self.debug == True:
+            net_obj.verify_path(os.path.join(self.path, 'energy', '{}_test'.format(self.exp)))
             command_str = ["nvidia-smi", "--query-gpu={}".format(self.attributes), "--format=csv,nounits,noheader", "-i", \
-                str(self.device_number), "-f", "{}/energy/{}_test/test.txt".format(self.path, self.exp, net_obj.fileformat, trial), "-lms", str(self.period)]
+                str(self.device_number), "-f", "{}/energy/{}_test/{}_{}.txt".format(self.path, self.exp, net_obj.fileformat, trial), "-lms", str(self.period)]
         else:
             command_str = ["nvidia-smi", "--query-gpu={}".format(self.attributes), "--format=csv,nounits,noheader", "-i", \
                 str(self.device_number), "-f", "{}/energy/{}/{}_{}.txt".format(self.path, self.exp, net_obj.fileformat, trial), "-lms", str(self.period)]
