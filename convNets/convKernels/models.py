@@ -103,16 +103,16 @@ class measure_kernel_energy(measure_energy):
         super(measure_kernel_energy, self).__init__(device_number, times, trials, path, sampling_period, momentum, lr, exp, debug, attributes)
         return
 
-    def load_model(self, ker, out_channels1, default=False):
-        net_obj = FashionConv(ker, out_channels1, self.lr, self.momentum, self.device_number, experiment_name=self.exp, path=self.path, fileformat=self.exp)
+    def load_model(self, ker, out_channels1, pad1, default=False):
+        net_obj = FashionConv(ker, out_channels1, self.lr, self.momentum, self.device_number, pad1=pad1, experiment_name=self.exp, path=self.path, fileformat=self.exp)
         if default:
             self.default_net = net_obj
         return net_obj
 
-    def main(self, kers, out_channels1, train_path, test_path, warm_up_times=0):
+    def main(self, kers, out_channels1, pad1, train_path, test_path, warm_up_times=0):
         #Warm-up
         self.set_device()
-        net_obj = self.load_model(3, out_channels1, default=True) #Just reminder to set a default!
+        net_obj = self.load_model(3, out_channels1, pad1, default=True) #Just reminder to set a default!
         self.load_infer_data(train_path, test_path)
         self.instantiate_model(net_obj)
         self.warm_up(net_obj, warm_up_times)
@@ -122,7 +122,7 @@ class measure_kernel_energy(measure_energy):
             kers = kers[-2::]# + kers[-2::]
         for ker in tqdm(kers):
             for trial in range(0, self.trials):
-                net_obj = self.load_model(ker, out_channels1)
+                net_obj = self.load_model(ker, out_channels1, pad1)
                 self.instantiate_model(net_obj)
                 command_str = self.define_command(trial, net_obj)
                 self.test(command_str, net_obj)

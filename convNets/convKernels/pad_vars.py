@@ -7,10 +7,10 @@ parentdir = '/home/emily/GreenerDNNs'
 print("Importing kernel variables...")
 sys.path.append(parentdir) 
 
-train_path = './train_loader.py'
-test_path = './test_loader.py'
-path = '/home/emily/GreenerDNNs/convNets/convKernels'
-experiment_name = 'ker'
+train_path = '/home/emily/GreenerDNNs/convNets/convKernels/train_loader.py'
+test_path = '/home/emily/GreenerDNNs/convNets/convKernels/test_loader.py'
+path = '/home/emily/GreenerDNNs/convNets/convKernelsPad'
+experiment_name = 'pad'
 #Fileformat needs to be set for each specific class in Model.py
 device_number = 1
 device_name = 'A5000'
@@ -23,7 +23,7 @@ lr = 0.1
 momentum = 0.3
 out_channels = 16
 kers = range(1, 15, 2)
-pad1 = 0
+pad1 = 'same'
 
 
 #Test variables
