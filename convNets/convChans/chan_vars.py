@@ -9,6 +9,7 @@ train_path = '/home/emily/GreenerDNNs/convNets/convKernels/train_loader.py'
 test_path = '/home/emily/GreenerDNNs/convNets/convKernels/test_loader.py'
 path = '/home/emily/GreenerDNNs/convNets/convChans'
 experiment_name = 'chan'
+timing_name = 'chan'
 #Fileformat needs to be set for each specific class in Model.py
 device_number = 1
 device_name = 'A5000'

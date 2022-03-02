@@ -4,13 +4,14 @@ import os
 #Housekeeping
 import sys
 parentdir = '/home/emily/GreenerDNNs'
-print("Importing kernel variables...")
+print("Importing pad variables...")
 sys.path.append(parentdir) 
 
 train_path = './train_loader.py'
 test_path = './test_loader.py'
 path = '/home/emily/GreenerDNNs/convNets/convKernels'
 experiment_name = 'ker'
+timing_name = 'ker'
 #Fileformat needs to be set for each specific class in Model.py
 device_number = 1
 device_name = 'A5000'

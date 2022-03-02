@@ -1,4 +1,4 @@
-from kernel_vars import *
+from pad_vars import *
 from models import measure_kernel_energy
 
 #Load data
@@ -8,4 +8,4 @@ attributes = 'timestamp,power.draw,clocks.current.sm,clocks.current.memory,utili
 mes = measure_kernel_energy(device_number, times, trials, path, sampling_period, momentum, lr, \
     experiment_name, debug, attributes)
 
-mes.main(kers, out_channels, pad1, train_path, test_path, warm_up_times)
+mes.main(kers, out_channels, pad1, train_path, test_path, timing_name, warm_up_times)

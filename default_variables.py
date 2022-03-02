@@ -4,7 +4,7 @@
 import sys
 parentdir = '/home/emily/GreenerDNNs'
 sys.path.append(parentdir)
-print('you are loading thr wrong variables')
+print('you are loading the wrong variables')
 
 train_path = './train_loader.py'
 test_path = './test_loader.py'

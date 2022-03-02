@@ -10,6 +10,7 @@ train_path = './train_loader.py'
 test_path = './test_loader.py'
 path = '/home/emily/GreenerDNNs/denseNets'
 experiment_name = 'dense'
+timing_name = 'dense'
 #Fileformat needs to be set for each specific class in Model.py
 device_number = 1
 device_name = 'A5000'

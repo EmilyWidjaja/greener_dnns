@@ -8,4 +8,4 @@ attributes = 'timestamp,power.draw,clocks.current.sm,clocks.current.memory,utili
 mes = measure_chan_energy(device_number, times, trials, path, sampling_period, momentum, lr, \
     experiment_name, debug, attributes)
 
-mes.main(ker, chans, train_path, test_path, warm_up_times)
+mes.main(ker, chans, train_path, test_path, timing_name, warm_up_times)

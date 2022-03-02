@@ -85,18 +85,18 @@ class measure_energy(object):
             proc.terminate()    #Stop nvidia-smi
         return
     
-    def define_command(self, trial, net_obj):
+    def define_command(self, trial, net_obj, timing_name):
         if self.debug == True:
             net_obj.verify_path(os.path.join(self.path, 'energy', '{}_test'.format(self.exp)))
             command_str = ["nvidia-smi", "--query-gpu={}".format(self.attributes), "--format=csv,nounits,noheader", "-i", \
-                str(self.device_number), "-f", "{}/energy/{}_test/{}_{}.txt".format(self.path, self.exp, net_obj.fileformat, trial), "-lms", str(self.period)]
+                str(self.device_number), "-f", "{}/energy/{}_test/{}_{}.txt".format(self.path, timing_name, net_obj.fileformat, trial), "-lms", str(self.period)]
         else:
             command_str = ["nvidia-smi", "--query-gpu={}".format(self.attributes), "--format=csv,nounits,noheader", "-i", \
-                str(self.device_number), "-f", "{}/energy/{}/{}_{}.txt".format(self.path, self.exp, net_obj.fileformat, trial), "-lms", str(self.period)]
+                str(self.device_number), "-f", "{}/energy/{}/{}_{}.txt".format(self.path,timing_name, net_obj.fileformat, trial), "-lms", str(self.period)]
             print(command_str)
         return command_str
 
-    def main(self, MN, train_path, test_path, warm_up_times=0):
+    def main(self, MN, train_path, test_path, timing_name, warm_up_times=0):
         #Warm-up
         self.set_device()
         net_obj = self.load_model(106, 106, default=True)
@@ -109,7 +109,7 @@ class measure_energy(object):
             for trial in range(0, self.trials):
                 net_obj = self.load_model(m, n)
                 self.instantiate_model(net_obj)
-                command_str = self.define_command(trial)
+                command_str = self.define_command(trial, net_obj, timing_name)
                 self.test(command_str, net_obj)
 
         print('Timings complete.')

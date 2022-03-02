@@ -14,7 +14,7 @@ class measure_chan_energy(measure_energy):
             self.default_net = net_obj
         return net_obj
 
-    def main(self, kers, out_channels1, train_path, test_path, warm_up_times=0):
+    def main(self, kers, out_channels1, train_path, test_path, timing_name, warm_up_times=0):
         #Warm-up
         self.set_device()
         net_obj = self.load_model(kers, 16, default=True) #Just reminder to set a default!
@@ -29,7 +29,7 @@ class measure_chan_energy(measure_energy):
             for trial in range(0, self.trials):
                 net_obj = self.load_model(kers, chan)
                 self.instantiate_model(net_obj)
-                command_str = self.define_command(trial, net_obj)
+                command_str = self.define_command(trial, net_obj, timing_name)
                 self.test(command_str, net_obj)
 
         print('Timings complete.')

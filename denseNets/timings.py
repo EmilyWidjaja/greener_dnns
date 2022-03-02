@@ -20,4 +20,4 @@ print(len(mn))
 
 mes = measure_dense_energy(device_number, times, trials, path, sampling_period, momentum, lr, \
     experiment_name, debug, attributes)
-mes.main(mn, train_path, test_path, warm_up_times)
+mes.main(mn, train_path, test_path, timing_name, warm_up_times)

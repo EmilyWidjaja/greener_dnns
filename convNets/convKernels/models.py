@@ -1,3 +1,4 @@
+from math import floor
 import torch.nn as nn
 import torch.nn.functional as F
 from timing_class import measure_energy
@@ -32,11 +33,12 @@ class ConvNet(nn.Module):
         # print('conv1 size: {}'.format(conv1_dims))
 
         ker_p = (2,2)
-        pool_h = conv1_h / ker_p[0]
-        pool_w = conv1_w / ker_p[1]
+        pool_h = floor(conv1_h / ker_p[0])
+        pool_w = floor(conv1_w / ker_p[1])
         self.flat_dims = int(pool_h * pool_w * out_channels1)
         
         # print('pool size: ({}, {}, {})'.format(out_channels1, pool_h, pool_w))
+        # print(self.flat_dims)
         # self.flat_dims = out_channels1*13*13
 
         #Define model architecture
@@ -54,6 +56,7 @@ class ConvNet(nn.Module):
         return
     
     def forward(self, x):
+        # print(x.size())
         x = self.pad(x)
         x = self.conv1(x)
         torch.cuda.empty_cache()
@@ -63,6 +66,7 @@ class ConvNet(nn.Module):
         x = self.pool(x)
 
         # print('Size of pool data = {}'.format(x.size()))
+        # print(self.flat_dims)
         x = x.reshape(-1, self.flat_dims).cuda()
         # print('Type of data: {}, {}'.format(type(x), type(x[0][0].item())))
         # print('Size of data = {}'.format(x.size()))
@@ -104,12 +108,12 @@ class measure_kernel_energy(measure_energy):
         return
 
     def load_model(self, ker, out_channels1, pad1, default=False):
-        net_obj = FashionConv(ker, out_channels1, self.lr, self.momentum, self.device_number, pad1=pad1, experiment_name=self.exp, path=self.path, fileformat=self.exp)
+        net_obj = FashionConv(ker, out_channels1, self.lr, self.momentum, self.device_number, pad1=pad1, experiment_name=self.exp, path=self.path, fileformat=self.exp+str(ker))
         if default:
             self.default_net = net_obj
         return net_obj
 
-    def main(self, kers, out_channels1, pad1, train_path, test_path, warm_up_times=0):
+    def main(self, kers, out_channels1, pad1, train_path, test_path, timing_name, warm_up_times=0):
         #Warm-up
         self.set_device()
         net_obj = self.load_model(3, out_channels1, pad1, default=True) #Just reminder to set a default!
@@ -119,12 +123,12 @@ class measure_kernel_energy(measure_energy):
 
         #Take readings
         if self.debug and len(kers) >= 4:
-            kers = kers[-2::]# + kers[-2::]
+            kers = kers[0:2]# + kers[-2::]
         for ker in tqdm(kers):
             for trial in range(0, self.trials):
                 net_obj = self.load_model(ker, out_channels1, pad1)
                 self.instantiate_model(net_obj)
-                command_str = self.define_command(trial, net_obj)
+                command_str = self.define_command(trial, net_obj, timing_name)
                 self.test(command_str, net_obj)
 
         print('Timings complete.')
