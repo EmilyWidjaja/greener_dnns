@@ -74,7 +74,7 @@ class measure_dense_energy(measure_energy):
 
         #Take readings
         if self.debug:
-            MN = [(41,41)]
+            MN = [(146,146)]
         for m, n in tqdm(MN):
             for trial in range(0, self.trials):
                 net_obj = self.load_model(m, n)

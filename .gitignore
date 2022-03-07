@@ -6,3 +6,5 @@ results
 
 train_loader.py
 test_loader.py
+
+quick_timings.py
