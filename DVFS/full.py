@@ -88,17 +88,23 @@ if __name__ == "__main__":
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=len(labels), shuffle=True)
     print("Dataloader created.\n")
 
-    input('Continue?')
 
     """START TIMINGS"""
     #----------SWITCHES----------------
     #Check GPU
+    print(f"""
+        Device Number = {device_number},
+        {experiment_name}: {trials} trials, {times} times,
+        Sampling period {sampling_period}ms,
+        Debug: {debug}
+        Saved on path {path} 
+        """)
     mes = measure_DVFS_energy(device_number, times, trials, path, sampling_period, 0, 0, experiment_name, debug, attributes)
 
     #Load model & Data
     os.system('nvcc -o change_clocks nvml_run.cu -I/usr/local/cuda-11.6/targets/x86_64-linux/include -L/usr/local/cuda/lib64 -lnvidia-ml')
   
-    mes.main(clocks, dataloader, warm_up_times)
+    mes.main(old_path, clocks, dataloader, warm_up_times)
 
     #Reset
     print('Resetting application clocks...')

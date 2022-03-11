@@ -2,9 +2,12 @@
 # %% initiate
 import torch
 import os
+from statistics import mean, stdev
 import subprocess
 from fashion_base import FashionVal
 from tqdm import tqdm
+import pandas as pd
+import datetime
 torch.cuda.empty_cache()
 """Method version of timing class
 Methods to be overwritten:
@@ -95,6 +98,57 @@ class measure_energy(object):
                 str(self.device_number), "-f", "{}/energy/{}/{}_{}.txt".format(self.path,timing_name, net_obj.fileformat, trial), "-lms", str(self.period)]
             print(command_str)
         return command_str
+
+    def sampling_iterator(self, timing_name):
+        folder_path = os.path.join(self.path, 'energy', timing_name + '_test')
+        files = os.listdir(folder_path)
+        checks = []
+        for file in files:
+            sampling_periods = self.check_sampling(os.path.join(folder_path, file))
+            print(f"""{file}
+            Number of samples: {len(sampling_periods)}\t[Max, min]: {max(sampling_periods)}, min: {min(sampling_periods)}
+            [Mean, std]: {mean(sampling_periods):0.4f}ns, {stdev(sampling_periods):0.4f}ns\n""")
+            if len(sampling_periods) < 200:
+                checks.append((file, len(sampling_periods)))
+        if len(checks) != 0:
+            print('------------WARNING--------------')
+            for file, samples in checks:
+                print(f"{file} has {samples} samples")
+        return
+
+    def check_sampling(self, file):
+        power_data = pd.read_csv(file)
+        cols = ['timestamp', 'power', 'gpu_clock', 'mem_clock', 'utilization.gpu', 'utilization.memory']
+        self.len_columns = len(power_data.columns) - 6
+        if len(power_data.columns) == 6:
+            pass
+        if len(power_data.columns) >= 7:
+            cols.append('temperature')
+        if len(power_data.columns) >= 8:
+            cols.append('memory_used')
+        if len(power_data.columns) >= 9:
+            cols.append('pstate')
+        power_data.columns = cols
+        # Iterate through power_data and multiply power with timestamp
+        sampling_periods = []
+        total_power = 0
+        time_format = '%Y/%m/%d %H:%M:%S.%f'
+        prev = False
+        for idx, row in power_data.iterrows():
+            # Turn into timestamp
+            curr = datetime.datetime.strptime(row['timestamp'], time_format)
+            if prev != False:
+                diff = curr-prev
+                power = power_data['power'][idx-1] * diff.microseconds * 1e-6
+                total_power += power
+                sampling_periods.append(diff.microseconds * 1e-6)
+            prev = curr
+        if power_data.empty:
+            print('Dataframe empty')
+            raise SystemExit(0)
+        return sampling_periods
+
+
 
     def main(self, MN, train_path, test_path, timing_name, warm_up_times=0):
         #Warm-up

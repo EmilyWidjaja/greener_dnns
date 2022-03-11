@@ -11,6 +11,7 @@ from DVFS_helpers import get_supported_clocks
 clock_path = '/home/emily/resnet/clock_freqs/'
 path = '/home/emily/GreenerDNNs/DVFS'
 image_path = '/home/emily/resnet/Resnet/val'
+old_path = '/home/emily/resnet/Resnet/'
 experiment_name = 'dvfs'
 device_number = 1
 device_name = 'A5000'
@@ -34,8 +35,7 @@ for mem in MEM_CLOCKS:
 times = 50
 warm_up_times = 5
 trials = 5
-exp = 'temperature'
-debug = True
-path = '/home/emily/resnet/Resnet/'
+exp = 'dvfs1'
+debug = False
 sampling_period = 30
 attributes = []

@@ -91,7 +91,7 @@ class measure_DVFS_energy(measure_energy):
                     "--format=csv,nounits,noheader", "-i", str(self.device_number), "-f", os.path.join(self.path, "energy/temp/{}-{}_{}.txt".format(mem, gr, trial)), "-lms", str(self.period)]
         else:
             command_str = ["nvidia-smi", "--query-gpu=timestamp,power.draw,clocks.current.sm,clocks.current.memory,utilization.gpu,utilization.memory,temperature.gpu,memory.used",
-                    "--format=csv,nounits,noheader", "-i", str(self.device_number), "-f", os.path.join(self.path, "energy/{}/{}-{}_{}.txt".format(self.path, self.exp, mem, gr, trial)), "-lms", str(self.period)]
+                    "--format=csv,nounits,noheader", "-i", str(self.device_number), "-f", os.path.join(self.path, "energy/{}/{}-{}_{}.txt".format(self.exp, mem, gr, trial)), "-lms", str(self.period)]
         return command_str
 
     def test(self, command_str, net_obj, times=50):
@@ -106,7 +106,7 @@ class measure_DVFS_energy(measure_energy):
 
             return
     
-    def main(self, clocks, dataloader, warm_up_times=0):
+    def main(self, old_path, clocks, dataloader, warm_up_times=0):
         #Setup
         self.set_device()
         net_obj = self.load_model() 
@@ -127,15 +127,16 @@ class measure_DVFS_energy(measure_energy):
         
         for mem, gr in tqdm(clocks):
             #Compile and change clocks
-            write_clocks(self.path, mem, gr)
+            write_clocks(old_path, mem, gr)
             command = 'sudo ./change_clocks'
             print(command, '\n\n')
             os.system(command)
+            self.warm_up(net_obj, warm_up_times)
 
             for trial in range(0, self.trials):
-                self.warm_up(net_obj, warm_up_times)
                 command_str = self.define_command(trial, mem, gr)
                 self.test(command_str, net_obj)
+                print('Trial complete.')
 
         print('Timings complete.')
         os.system('tput bel')
