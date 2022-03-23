@@ -4,7 +4,7 @@
 Procedure:
 1. Load & process data (this should just be torch.load(dataloader), but that doesn't work somehow)
 2. Load available clock combinations
-3. Define processor that loads the pretrained Resnet18 model
+3. Define processor that loads the pretrained ResNet50 model
 4. Iterate through available clock combinations & take 5 energy readings each
     - For each clock combination, compile a CUDA script that changes clock frequencies & run it.
     (clock combination written to a text file, compile, then CUDA script reads the text file at runtime - there's probably a better way to do this)
@@ -13,11 +13,16 @@ Procedure:
 #%% initiate
 import torch
 import os
+import sys
+
+parentdir = '/home/emily/GreenerDNNs'
+sys.path.append(parentdir) 
+
 from PIL import Image
 import numpy as np
 from tqdm import tqdm
-from dvfs_vars import *
 from DVFS_helpers import *
+from alexnet_vars import *
 
 if __name__ == "__main__":
     """Data Loading and normalization"""
@@ -75,7 +80,7 @@ if __name__ == "__main__":
 
     else:
         #Create rubbish data
-        size = (15000, 3, 50, 50)
+        size = (1200, 3, 224, 224)
         images = torch.rand(size, dtype=torch.float32)
         labels = np.random.randint(0, 9, size=size[0], dtype=np.int64)
 
@@ -104,7 +109,8 @@ if __name__ == "__main__":
     #Load model & Data
     os.system('nvcc -o change_clocks nvml_run.cu -I/usr/local/cuda-11.6/targets/x86_64-linux/include -L/usr/local/cuda/lib64 -lnvidia-ml')
   
-    mes.main(old_path, clocks, dataloader, model=18, warm_up_times=warm_up_times)
+    torch.cuda.empty_cache()
+    mes.main(old_path, clocks, dataloader, model='alexnet', warm_up_times=warm_up_times)
 
     #Reset
     print('Resetting application clocks...')

@@ -6,6 +6,7 @@ import torchvision
 from timing_class import measure_energy
 from tqdm import tqdm
 import subprocess
+from statistics import mean, stdev
 
 class CustomDataset(torch.utils.data.Dataset):
     def __init__(self, imgs, labels):
@@ -56,7 +57,7 @@ def normalize(image):
     img = transforms.ToTensor()(image)
     mn, std = img.mean([1,2]), img.std([1,2])
     transform_norm = transforms.Compose([
-        transforms.Resize((50,50)),
+        transforms.Resize((256,256)),
         transforms.ToTensor(),
         transforms.Normalize(mn, std)
     ])
@@ -69,8 +70,16 @@ class measure_DVFS_energy(measure_energy):
         super(measure_DVFS_energy, self).__init__(device_number, times, trials, path, sampling_period, momentum, lr, exp, debug, attributes)
         return
 
-    def load_model(self):
-        net_obj = torchvision.models.resnet18(pretrained=True)
+    def load_model(self, model):
+        if model == 18:
+            print('Loading resnet18')
+            net_obj = torchvision.models.resnet18(pretrained=True)
+        elif model == 'alexnet':
+            print('Loading alexnet...')
+            net_obj = torch.hub.load('pytorch/vision:v0.10.0', 'alexnet', pretrained=True)
+        else:
+            print('Loading resnet50')
+            net_obj = torchvision.models.resnet50(pretrained=True)
         net_obj.eval()
         net_obj = net_obj.to(self.device)
         return net_obj
@@ -104,12 +113,29 @@ class measure_DVFS_energy(measure_energy):
                 pred = output.data.max(1, keepdim=True)[1]
             proc.terminate()    #Stop nvidia-smi
 
-            return
+        return
     
-    def main(self, old_path, clocks, dataloader, warm_up_times=0):
+    def sampling_iterator(self):
+        folder_path = os.path.join(self.path, 'energy', 'temp')
+        files = os.listdir(folder_path)
+        checks = []
+        for file in files:
+            sampling_periods = self.check_sampling(os.path.join(folder_path, file))
+            print(f"""{file}
+            Number of samples: {len(sampling_periods)}\t[Max, min]: {max(sampling_periods)}, min: {min(sampling_periods)}
+            [Mean, std]: {mean(sampling_periods):0.4f}ns, {stdev(sampling_periods):0.4f}ns\n""")
+            if len(sampling_periods) < 200:
+                checks.append((file, len(sampling_periods)))
+        if len(checks) != 0:
+            print('------------WARNING--------------')
+            for file, samples in checks:
+                print(f"{file} has {samples} samples")
+        return
+    
+    def main(self, old_path, clocks, dataloader, model=18, warm_up_times=0):
         #Setup
         self.set_device()
-        net_obj = self.load_model() 
+        net_obj = self.load_model(model=model) 
 
         data, target = next(iter(dataloader))
         print("Moving data to device...")
@@ -139,5 +165,9 @@ class measure_DVFS_energy(measure_energy):
                 print('Trial complete.')
 
         print('Timings complete.')
+
+        if self.debug:
+            self.sampling_iterator()
+        
         os.system('tput bel')
         return

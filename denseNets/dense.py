@@ -38,7 +38,7 @@ class Net(nn.Module):
         return F.log_softmax(x)
 
 class Dense(FashionVal):
-    def __init__(self, no_layers, no_nodes, lr, momentum, device_number, experiment_name, path='/home/emily/fashion/fashion_module/'):
+    def __init__(self, no_layers, no_nodes, lr, momentum, device_number, experiment_name, path):
         super(Dense, self).__init__(lr, momentum, device_number, experiment_name, path)
         #set constants
         self.fileformat = '{}x{}'.format(no_layers, no_nodes)
@@ -82,7 +82,12 @@ class measure_dense_energy(measure_energy):
                 command_str = self.define_command(trial, net_obj, timing_name)
                 self.test(command_str, net_obj)
 
+
         print('Timings complete.')
+
+        if self.debug:
+            self.sampling_iterator(timing_name)
+            
         os.system('tput bel')
         return
 

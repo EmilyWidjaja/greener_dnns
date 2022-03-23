@@ -132,5 +132,9 @@ class measure_kernel_energy(measure_energy):
                 self.test(command_str, net_obj)
 
         print('Timings complete.')
+
+        if self.debug:
+            self.sampling_iterator(timing_name)
+        
         os.system('tput bel')
         return

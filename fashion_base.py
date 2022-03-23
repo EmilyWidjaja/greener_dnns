@@ -54,6 +54,8 @@ class FashionVal(object):
         self.learning_rate = lr
         self.momentum = momentum
         self.prev_epochs = 0
+        self.batch_size_train = batch_size_train
+        self.data_size = data_size
 
         #Set random seed for same behaviour upon retraining
         random_seed = 1
@@ -65,6 +67,11 @@ class FashionVal(object):
         self.paths_dict = {'results': '', 'train_data': '', 'energy':''}
         self.initialize_paths()
         
+        return
+
+    def set_batch_size_train(self, batch_size_train, data_size):
+        self.batch_size_train = batch_size_train
+        self.data_size = data_size
         return
 
 #HELPER METHODS
@@ -80,11 +87,11 @@ class FashionVal(object):
             raise SystemExit(0)
         return
     
-    def print_memory(self):
+    def print_memory(self, device_number = 1):
         #Prints memory reserved & allocated for CUDA devices. Should be similar (otherwise clear cache)
-        t = torch.cuda.get_device_properties(0).total_memory
-        r = torch.cuda.memory_reserved(0)
-        a = torch.cuda.memory_allocated(0)
+        t = torch.cuda.get_device_properties(device_number).total_memory
+        r = torch.cuda.memory_reserved(device_number)
+        a = torch.cuda.memory_allocated(device_number)
         print('Total Memory: {}\nReserved: {:.2f}%\nAllocated: {:.2f}%'.format(t, float(r)/t*100, float(a)/t*100))
         return
     
@@ -150,7 +157,7 @@ class FashionVal(object):
         if train_more == False:
             #loaded from scratch
             print("Model instantiated.")
-            print(summary(self.network, data_size, batch_size=batch_size_train))
+            print(summary(self.network, self.data_size, self.batch_size_train))
         else:
             #loaded in continued state
             network_state_dict = torch.load(os.path.join(self.paths_dict['results'], 'model{}.pth'.format(self.fileformat)))
@@ -161,6 +168,7 @@ class FashionVal(object):
 
     def train(self, train_loader, epoch):
         #Training loop for 1 epoch
+
         self.network.train()
         torch.cuda.empty_cache()
         for batch_idx, (data, target) in enumerate(train_loader):
@@ -178,7 +186,7 @@ class FashionVal(object):
             print('Train epoch: {ep}\t loss: {loss:.6f}'.format(ep=self.prev_epochs+epoch+1, loss=loss.item()))
             self.train_losses.append(loss.item())
             self.train_counter.append(
-                (batch_idx*batch_size_train) + ((self.prev_epochs+epoch)*len(train_loader.dataset)))
+                (batch_idx*self.batch_size_train) + ((self.prev_epochs+epoch)*len(train_loader.dataset)))
         return
 
     def test(self, test_loader):
@@ -223,7 +231,7 @@ class FashionVal(object):
             self.test_counter = lists_from_csv[2]
             self.test_losses = lists_from_csv[3]
             self.prev_epochs = int(lists_from_csv[4][0])
-            new_counts = [i*batch_size_train for i in range(self.prev_epochs, self.prev_epochs+epochs+1)]
+            new_counts = [i*self.batch_size_train for i in range(self.prev_epochs, self.prev_epochs+epochs+1)]
             self.test_counter.extend(new_counts)
         
         
@@ -254,6 +262,6 @@ class FashionVal(object):
         self.instantiate_model(train_more)
         best_acc, best_test_loss = self.train_model(epochs, train_loader, test_loader)
         self.save_training_data(epochs, best_acc, best_test_loss)
-        return
+        return best_acc, best_test_loss
 
         

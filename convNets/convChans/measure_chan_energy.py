@@ -32,6 +32,9 @@ class measure_chan_energy(measure_energy):
                 command_str = self.define_command(trial, net_obj, timing_name)
                 self.test(command_str, net_obj)
 
+        if self.debug:
+            self.sampling_iterator(timing_name)
+
         print('Timings complete.')
         os.system('tput bel')
         return
