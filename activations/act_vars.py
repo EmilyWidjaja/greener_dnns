@@ -20,8 +20,8 @@ device_name = 'A5000'
 data_size = (3, 256, 256)
 batch_size_train = 3925-785
 batch_size_test = 785
-lr = 0.05
-momentum = 0.3
+lr = 0.01
+momentum = 0.05
 
 
 #Test variables

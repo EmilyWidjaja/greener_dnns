@@ -171,6 +171,7 @@ class FashionVal(object):
 
         self.network.train()
         torch.cuda.empty_cache()
+        batches = len(train_loader)
         for batch_idx, (data, target) in enumerate(train_loader):
             data = data.to(self.device)
             target = target.to(self.device)
@@ -182,8 +183,9 @@ class FashionVal(object):
             torch.cuda.empty_cache()
             loss.backward() #computes derivative of loss using backpropogation
             self.optimizer.step()    #optimizer takes a step based on gradients of parameters
-
-            print('Train epoch: {ep}\t loss: {loss:.6f}'.format(ep=self.prev_epochs+epoch+1, loss=loss.item()))
+            if batches > 4 and batch_idx % 4 == 0:
+                print('Train epoch: {ep}\t [batch {batch_no}/{batches}]\t loss: {loss:.6f}'.format(\
+                    ep=self.prev_epochs+epoch+1, batch_no=batch_idx+1, batches=batches, loss=loss.item()))
             self.train_losses.append(loss.item())
             self.train_counter.append(
                 (batch_idx*self.batch_size_train) + ((self.prev_epochs+epoch)*len(train_loader.dataset)))

@@ -33,6 +33,15 @@ def normalize(image):
     tr_img = transform_norm(image)
     return tr_img
 
+
+batch_split = 10
+test_split = 0.2
+len_images = 3925
+test_no = round(test_split*len_images)
+train_no = len_images - test_no
+set_train_batch_size = round(train_no/batch_split)
+set_test_batch_size = round(test_no/batch_split)
+
 """Data Loading and normalization"""
 if __name__ == "__main__":
     image_path = '/home/emily/resnet/Resnet/val'
@@ -68,8 +77,7 @@ if __name__ == "__main__":
     print(data_dict)
     print("Data retrieval and standardization complete.")
     # Change B&W images
-    print(type(images[0]))
-    print(images[0].size())
+    print("Size of images (C, H, W): ", images[0].size())
 
     bw = []
     idx = 0
@@ -88,9 +96,9 @@ if __name__ == "__main__":
             print('not a tensor!', type(image))
             idxs.append(idx)
             wrong += 1
+    if wrong != 0:
+        print('# of images that are not tensors: ', wrong)
 
-    print('wrong: ', wrong)
-    print(type(images))
     images = torch.stack(images)
     #Create dataloader
     print("Creating dataloader...")
@@ -109,14 +117,18 @@ if __name__ == "__main__":
     dataset = CustomDataset(images, labels)
     train_data, test_data = torch.utils.data.random_split(dataset, [train_no, test_no], generator=torch.Generator().manual_seed(42))
 
+    train_batch_size = round(train_no/batch_split)
+    test_batch_size = round(test_no/batch_split)
+    
+    if set_train_batch_size != train_batch_size:
+        print("WARNING: set training batch size {} does not match calculated batch size {}.".format(set_train_batch_size, train_batch_size))
 
     #Split into train and test
-    trainloader = torch.utils.data.DataLoader(train_data, batch_size=round(train_no/5), shuffle=True)
-    testloader = torch.utils.data.DataLoader(test_data, batch_size=round(test_no/5), shuffle=True)
+    trainloader = torch.utils.data.DataLoader(train_data, batch_size=train_batch_size, shuffle=True)
+    testloader = torch.utils.data.DataLoader(test_data, batch_size=test_batch_size, shuffle=True)
     torch.save(trainloader, '/home/emily/GreenerDNNs/activations/trainloader.pth')
     torch.save(testloader, '/home/emily/GreenerDNNs/activations/testloader.pth')
 
-    # for data, target in trainloader:
-    #     print("One")
-    #     print(data.shape)
+    print('Training batch size: ', train_batch_size)
+    print('Test batch size: ', test_batch_size)
     print("Dataloader created.\n")
