@@ -3,7 +3,7 @@ import torch.nn as nn
 from torchsummary import summary
 import torch.nn.functional as F
 import torch.optim as optim
-from default_variables import batch_size_train, data_size
+# from default_variables import batch_size_train, data_size
 import os
 import csv
 """
@@ -54,8 +54,8 @@ class FashionVal(object):
         self.learning_rate = lr
         self.momentum = momentum
         self.prev_epochs = 0
-        self.batch_size_train = batch_size_train
-        self.data_size = data_size
+        self.batch_size_train = 10000
+        self.data_size = (3,50,50)
 
         #Set random seed for same behaviour upon retraining
         random_seed = 1
@@ -120,6 +120,9 @@ class FashionVal(object):
         # print('{} exists: {}'.format(path, os.path.exists(path)))
         if os.path.exists(path) == False:
             self.paths_set = False
+            print('Path {} does not exist'.format(path))
+        else:
+            print('Path {} exists'.format(path))
         return 
 
     def save_training_data(self, epochs, best_acc, best_test_loss):
@@ -151,7 +154,7 @@ class FashionVal(object):
     def instantiate_model(self, train_more=False):
         #Instantiates model w/ optimizer with option to continue training
         self.instantiate_net()
-        self.network.to(self.device)
+        self.network = self.network.to(self.device)
         self.train_more = train_more
         self.optimizer = optim.SGD(self.network.parameters(), lr=self.learning_rate, momentum=self.momentum)
         if train_more == False:

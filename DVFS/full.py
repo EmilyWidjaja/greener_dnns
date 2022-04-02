@@ -104,7 +104,7 @@ if __name__ == "__main__":
     #Load model & Data
     os.system('nvcc -o change_clocks nvml_run.cu -I/usr/local/cuda-11.6/targets/x86_64-linux/include -L/usr/local/cuda/lib64 -lnvidia-ml')
   
-    mes.main(old_path, clocks, dataloader, model=18, warm_up_times=warm_up_times)
+    mes.main(clock_path, clocks, dataloader, model=18, warm_up_times=warm_up_times)
 
     #Reset
     print('Resetting application clocks...')

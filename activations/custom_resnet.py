@@ -319,12 +319,14 @@ class Activation(FashionVal):
         return
 
 class measure_act_energy(measure_energy):
-    def __init__(self, device_number, times, trials, path, sampling_period, momentum, lr, exp, debug, attributes=''):
+    def __init__(self, device_number, times, trials, path, sampling_period, momentum, lr, exp, debug, trainloader, testloader, attributes=''):
         super(measure_act_energy, self).__init__(device_number, times, trials, path, sampling_period, momentum, lr, exp, debug, attributes)
+        self.trainloader = trainloader
+        self.testloader = testloader
         return
 
     def load_model(self, activation, default=False):
-        net_obj = Activation(self.lr, self.momentum, activation, self.device_number, self.exp, self.path)
+        net_obj = Activation(self.lr, self.momentum, activation, self.device_number, self.exp, self.path, self.trainloader, self.testloader)
         if default:
             self.default_net = net_obj
         return net_obj
@@ -338,8 +340,6 @@ class measure_act_energy(measure_energy):
         self.warm_up(net_obj, warm_up_times)
 
         #Take readings
-        if self.debug and len(acts) >= 2:
-            acts = acts[0:2]# + out_channels1[-2::]
         for act in tqdm(acts):
             for trial in range(0, self.trials):
                 net_obj = self.load_model(act, default=False)

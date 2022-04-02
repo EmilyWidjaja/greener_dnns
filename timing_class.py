@@ -1,10 +1,10 @@
 
 # %% initiate
+from abc import abstractmethod
 import torch
 import os
 from statistics import mean, stdev
 import subprocess
-from fashion_base import FashionVal
 from tqdm import tqdm
 import pandas as pd
 import datetime
@@ -42,12 +42,9 @@ class measure_energy(object):
             print('GPU Device not found')
             raise SystemExit(0)
 
+    @abstractmethod
     def load_model(self, m=0, n=0, default=False):
-        net_obj = FashionVal(m, n, self.lr, self.momentum, self.exp, self.device_number, path=self.path)
-        if default == True:
-            net_obj = FashionVal(m, n, self.lr, self.momentum, self.exp, self.device_number, path = self.path)
-            self.default_net = net_obj
-        return net_obj
+        pass
 
     def load_infer_data(self, train_path, test_path):
         train_loader, test_loader = self.default_net.load_data(train_path, test_path)
@@ -136,6 +133,8 @@ class measure_energy(object):
         prev = False
         for idx, row in power_data.iterrows():
             # Turn into timestamp
+            if row.isnull().values.any():
+                continue
             curr = datetime.datetime.strptime(row['timestamp'], time_format)
             if prev != False:
                 diff = curr-prev
